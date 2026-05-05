@@ -8,13 +8,14 @@ export const authConfig = {
   },
   
   // Simple access code authentication
-  // Change this to a secure password for your team
-  accessCode: 'hotshoe-finbolt-starter',
+  // Set VITE_ACCESS_CODE in your .env file
+  accessCode: import.meta.env.VITE_ACCESS_CODE || '',
   
-  // Alternative: List of valid access codes (for different team members/projects)
-  validAccessCodes: [
-    'hotshoe-finbolt-starter',      // Main access code
-  ],
+  // Alternative: List of valid access codes (comma-separated in env var)
+  validAccessCodes: (import.meta.env.VITE_ACCESS_CODES || import.meta.env.VITE_ACCESS_CODE || '')
+    .split(',')
+    .map((c: string) => c.trim())
+    .filter(Boolean),
   
   // Session settings
   session: {
