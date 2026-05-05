@@ -27,7 +27,7 @@ export async function findExistingShortUrl(sitemapId: string): Promise<string | 
     const response = await fetch('https://api.jsonbin.io/v3/b/684a24198561e97a5022add1/latest', {
       headers: {
         'Content-Type': 'application/json',
-        'X-Master-Key': '$2a$10$gxCvk9ANvIiozJX987t7TOalHI3WyUIE.nlondWqiGmv0YvpcnZiW'
+        'X-Master-Key': import.meta.env.VITE_JSONBIN_API_KEY || ''
       },
       signal: AbortSignal.timeout(15000)
     });
@@ -285,7 +285,7 @@ declare global {
   }
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
   window.vennSimpleUrlRouting = {
     createSimpleShortUrl,
     findExistingShortUrl,

@@ -19,7 +19,7 @@ export async function clearAllData(): Promise<void> {
       // Use the cloud storage API to clear the short URL bin
       const CLOUD_STORAGE_CONFIG = {
         API_BASE: "https://api.jsonbin.io/v3",
-        API_KEY: "$2a$10$gxCvk9ANvIiozJX987t7TOalHI3WyUIE.nlondWqiGmv0YvpcnZiW",
+        API_KEY: import.meta.env.VITE_JSONBIN_API_KEY || "",
         SHORT_URLS_BIN_ID: "684a24198561e97a5022add1",
         ORG_ID: "784812546842757295",
       };
@@ -126,7 +126,7 @@ declare global {
   }
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
   window.vennDataCleanup = {
     clearAllData,
     showCurrentData,

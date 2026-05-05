@@ -10,8 +10,7 @@ import {
 // Storage configuration
 const CLOUD_STORAGE_CONFIG = {
   API_BASE: "https://api.jsonbin.io/v3",
-  API_KEY:
-    "$2a$10$gxCvk9ANvIiozJX987t7TOalHI3WyUIE.nlondWqiGmv0YvpcnZiW",
+  API_KEY: import.meta.env.VITE_JSONBIN_API_KEY || "",
   SITEMAPS_BIN_ID: "684a23f18960c979a5a84afc",
   SHORT_URLS_BIN_ID: "684a24198561e97a5022add1",
   PAGE_TYPES_BIN_ID: "684a9a2e8a456b7966acc070",
@@ -615,7 +614,7 @@ export const cloudStorageDebug = {
   },
 };
 
-// Make debug functions available globally
-if (typeof window !== "undefined") {
+// Make debug functions available globally (dev only)
+if (typeof window !== "undefined" && import.meta.env.DEV) {
   (window as any).vennCloudDebug = cloudStorageDebug;
 }
