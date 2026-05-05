@@ -24,7 +24,8 @@ export async function findExistingShortUrl(sitemapId: string): Promise<string | 
     console.log('🔍 Looking for existing short URL for sitemap:', sitemapId);
     
     // Use cloud storage API directly to get all short URL mappings
-    const response = await fetch('https://api.jsonbin.io/v3/b/684a24198561e97a5022add1/latest', {
+    const apiBase = import.meta.env.DEV ? '/api-jsonbin' : 'https://api.jsonbin.io/v3';
+    const response = await fetch(`${apiBase}/b/684a24198561e97a5022add1/latest`, {
       headers: {
         'Content-Type': 'application/json',
         'X-Master-Key': import.meta.env.VITE_JSONBIN_API_KEY || ''

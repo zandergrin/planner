@@ -82,6 +82,7 @@ export const PagePropertiesPanel = forwardRef<PagePropertiesPanelRef, PageProper
     }, []);
 
     // Build parent URL path recursively
+    // Skips ghost pages (they exist for organisation but shouldn't appear in URLs)
     const getParentUrlPath = useCallback((pageId: string): string => {
       const currentPage = allPages.find(p => p.id === pageId);
       if (!currentPage || !currentPage.parent) {
@@ -93,16 +94,23 @@ export const PagePropertiesPanel = forwardRef<PagePropertiesPanelRef, PageProper
         return '';
       }
       
-      // If parent has no parent itself, it's a root page - don't include it
+      // If parent has no parent itself, it's a root page (homepage) - don't include it
       if (!parent.parent) {
         return '';
       }
       
-      const parentUrl = (parent as any).url || `/${generateCleanSlug(parent.name)}`;
-      const parentPath = getParentUrlPath(parent.id);
+      // Check if parent is a ghost page - if so, skip it and continue up the chain
+      const isGhostPage = parent.pageType === 'custom-1752848831934';
+      if (isGhostPage) {
+        return getParentUrlPath(parent.id);
+      }
       
-      // Combine parent path with current parent URL, removing duplicate slashes
-      const combinedPath = parentPath + parentUrl;
+      // Get just this parent's own slug (not its full stored URL which may include its own parents)
+      const parentSlug = generateCleanSlug(parent.name);
+      const ancestorPath = getParentUrlPath(parent.id);
+      
+      // Combine ancestor path with this parent's slug
+      const combinedPath = ancestorPath ? `${ancestorPath}/${parentSlug}` : `/${parentSlug}`;
       return combinedPath.replace(/\/+/g, '/');
     }, [allPages]);
 

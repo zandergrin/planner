@@ -8,8 +8,10 @@ import {
 } from "./storage";
 
 // Storage configuration
+// In dev mode, use Vite proxy to avoid CORS issues with JSONBin
+const API_BASE = import.meta.env.DEV ? "/api-jsonbin" : "https://api.jsonbin.io/v3";
 const CLOUD_STORAGE_CONFIG = {
-  API_BASE: "https://api.jsonbin.io/v3",
+  API_BASE,
   API_KEY: import.meta.env.VITE_JSONBIN_API_KEY || "",
   SITEMAPS_BIN_ID: "684a23f18960c979a5a84afc",
   SHORT_URLS_BIN_ID: "684a24198561e97a5022add1",

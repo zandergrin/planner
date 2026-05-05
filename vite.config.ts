@@ -15,4 +15,14 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src/app'),
     },
   },
+  server: {
+    proxy: {
+      // Proxy JSONBin API calls through Vite dev server to avoid CORS
+      '/api-jsonbin': {
+        target: 'https://api.jsonbin.io/v3',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api-jsonbin/, ''),
+      },
+    },
+  },
 })
