@@ -82,8 +82,8 @@ declare global {
   }
 }
 
-// Expose debug functions globally
-if (typeof window !== 'undefined') {
+// Expose debug functions globally (dev only)
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
   window.vennShareDebug = {
     createShareUrl: createShareUrl,
     testShareUrl: testShareUrl,

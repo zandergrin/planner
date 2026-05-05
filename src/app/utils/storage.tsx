@@ -1161,8 +1161,10 @@ if (typeof window !== 'undefined') {
     console.error("Cloud connection test failed:", error);
   });
   
-  // Expose debug functions
-  (window as any).clearSitemapCache = storage.clearCache;
-  (window as any).clearPageTypesCache = pageTypeStorage.clearCache;
-  (window as any).pageTypeStorage = pageTypeStorage;
+  // Expose debug functions (dev only)
+  if (import.meta.env.DEV) {
+    (window as any).clearSitemapCache = storage.clearCache;
+    (window as any).clearPageTypesCache = pageTypeStorage.clearCache;
+    (window as any).pageTypeStorage = pageTypeStorage;
+  }
 }
