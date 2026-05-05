@@ -17,11 +17,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // Proxy JSONBin API calls through Vite dev server to avoid CORS
-      '/api-jsonbin': {
-        target: 'https://api.jsonbin.io/v3',
+      // Proxy API calls to production Cloudflare Pages (D1 + Functions)
+      '/api': {
+        target: 'https://planner.venncreative.co.uk',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api-jsonbin/, ''),
       },
     },
   },

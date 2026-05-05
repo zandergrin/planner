@@ -9,16 +9,9 @@ npm install
 npm run dev
 ```
 
-Opens at **http://localhost:5173**
+Opens at **http://localhost:5173** — API calls proxy to the live Cloudflare D1 database.
 
 Requires a `.env` file (not committed) with:
 ```
-VITE_JSONBIN_API_KEY=your_key_here
-```
-
-## Backup & Restore
-
-```
-npm run backup              # snapshot all live data to backups/<timestamp>/
-npm run restore <timestamp> # restore from a backup (confirms first, takes safety backup)
+VITE_ACCESS_CODE=your_access_code
 ```
