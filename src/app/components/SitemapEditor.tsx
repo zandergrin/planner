@@ -748,7 +748,7 @@ export function SitemapEditor({ sitemapId, onBack, isViewOnly = false }: Sitemap
   const handleCreateVersion = async (versionNumber: string, description?: string) => {
     if (!sitemap) return;
 
-    // Create a snapshot of the current sitemap state
+    // Create a snapshot of the current sitemap state (deep clone all arrays)
     const versionSnapshot: SitemapVersion = {
       versionNumber,
       createdAt: new Date().toISOString(),
@@ -759,7 +759,7 @@ export function SitemapEditor({ sitemapId, onBack, isViewOnly = false }: Sitemap
         color: page.color,
         x: page.x,
         y: page.y,
-        children: page.children,
+        children: [...page.children],
         parent: page.parent,
         pageType: page.pageType,
         description: page.description,
@@ -774,8 +774,8 @@ export function SitemapEditor({ sitemapId, onBack, isViewOnly = false }: Sitemap
         color: pt.color,
         description: pt.description,
       })),
-      rootPageOrder: sitemap.rootPageOrder,
-      collapsedGroups: sitemap.collapsedGroups,
+      rootPageOrder: [...sitemap.rootPageOrder],
+      collapsedGroups: [...sitemap.collapsedGroups],
       zoom: sitemap.zoom,
       footerPages: sitemap.footerPages?.map(page => ({
         id: page.id,
@@ -784,7 +784,7 @@ export function SitemapEditor({ sitemapId, onBack, isViewOnly = false }: Sitemap
         color: page.color,
         x: page.x,
         y: page.y,
-        children: page.children,
+        children: [...page.children],
         parent: page.parent,
         pageType: page.pageType,
         description: page.description,
@@ -826,7 +826,7 @@ export function SitemapEditor({ sitemapId, onBack, isViewOnly = false }: Sitemap
       const currentVersionIndex = updatedVersions.findIndex(v => v.versionNumber === sitemap.currentVersion);
       
       if (currentVersionIndex !== -1) {
-        // Update the current version's snapshot with the latest state
+        // Update the current version's snapshot with the latest state (deep clone all arrays)
         const currentVersionSnapshot: SitemapVersion = {
           versionNumber: sitemap.currentVersion,
           createdAt: updatedVersions[currentVersionIndex].createdAt, // Keep original creation date
@@ -838,7 +838,7 @@ export function SitemapEditor({ sitemapId, onBack, isViewOnly = false }: Sitemap
             color: page.color,
             x: page.x,
             y: page.y,
-            children: page.children,
+            children: [...page.children],
             parent: page.parent,
             pageType: page.pageType,
             description: page.description,
@@ -853,8 +853,8 @@ export function SitemapEditor({ sitemapId, onBack, isViewOnly = false }: Sitemap
             color: pt.color,
             description: pt.description,
           })),
-          rootPageOrder: sitemap.rootPageOrder,
-          collapsedGroups: sitemap.collapsedGroups,
+          rootPageOrder: [...sitemap.rootPageOrder],
+          collapsedGroups: [...sitemap.collapsedGroups],
           zoom: sitemap.zoom,
           footerPages: sitemap.footerPages?.map(page => ({
             id: page.id,
@@ -863,7 +863,7 @@ export function SitemapEditor({ sitemapId, onBack, isViewOnly = false }: Sitemap
             color: page.color,
             x: page.x,
             y: page.y,
-            children: page.children,
+            children: [...page.children],
             parent: page.parent,
             pageType: page.pageType,
             description: page.description,
@@ -882,24 +882,26 @@ export function SitemapEditor({ sitemapId, onBack, isViewOnly = false }: Sitemap
       }
     }
 
-    // Restore the sitemap state from the version snapshot
+    // Restore the sitemap state from the version snapshot (deep clone to prevent cross-version mutations)
     const restoredSitemap: Sitemap = {
       ...sitemap,
       currentVersion: versionNumber,
       versions: updatedVersions, // Use the updated versions array
       pages: targetVersion.pages.map(page => ({
         ...page,
+        children: [...page.children],
         icon: getIconComponent(page.iconKey),
       })),
       pageTypes: targetVersion.pageTypes.map(pt => ({
         ...pt,
         icon: getIconComponent(pt.iconKey),
       })),
-      rootPageOrder: targetVersion.rootPageOrder,
-      collapsedGroups: targetVersion.collapsedGroups,
+      rootPageOrder: [...targetVersion.rootPageOrder],
+      collapsedGroups: [...targetVersion.collapsedGroups],
       zoom: targetVersion.zoom,
       footerPages: targetVersion.footerPages?.map(page => ({
         ...page,
+        children: [...page.children],
         icon: getIconComponent(page.iconKey),
       })),
     };
