@@ -583,14 +583,14 @@ export function SitemapEditor({ sitemapId, onBack, isViewOnly = false }: Sitemap
       // Create ultra-short URL (6-8 characters)
       const shortUrl = await createSimpleShortUrl(sitemap.id);
       
-      // NOTE: We intentionally DO NOT include the version parameter in share URLs
-      // Share links should always show the current live state of the sitemap
-      // If users want to share a specific version, they can manually copy the URL from their browser
+      // Append version parameter if viewing a specific version
+      const versionedUrl = sitemap.currentVersion 
+        ? `${shortUrl}${shortUrl.includes('?') ? '&' : '?'}v=${sitemap.currentVersion}`
+        : shortUrl;
       
-      // Cache and return the short URL for both (since it's our primary method)
       const urls = { 
-        fullUrl: shortUrl,
-        compressedUrl: shortUrl
+        fullUrl: versionedUrl,
+        compressedUrl: versionedUrl
       };
       
       setCachedShareUrls(urls);
@@ -646,6 +646,8 @@ export function SitemapEditor({ sitemapId, onBack, isViewOnly = false }: Sitemap
 
   const handleShare = () => {
     savePendingPropertyChangesImmediate();
+    // Clear cached URLs so they regenerate with the current version
+    setCachedShareUrls(null);
     setShowShareDialog(true);
   };
 
