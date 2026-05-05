@@ -2,8 +2,9 @@
 import React from 'react';
 import { Home, FileText, Mail, Info, ShoppingCart, User, Search, Grid, Blocks } from 'lucide-react';
 import { 
-  loadCloudSitemaps, 
-  saveCloudSitemaps, 
+  loadCloudSitemaps,
+  saveCloudSitemap as saveCloudSitemapDirect,
+  deleteCloudSitemap,
   loadCloudPageTypes,
   saveCloudPageTypes,
   testCloudConnection 
@@ -854,7 +855,7 @@ export const storage = {
     }
   },
 
-  // Save sitemap to cloud storage
+  // Save sitemap to cloud storage (single upsert — no read-all/write-all)
   async saveSitemap(sitemap: Sitemap): Promise<void> {
     try {
       const updatedSitemap = {
@@ -862,22 +863,19 @@ export const storage = {
         updatedAt: new Date()
       };
 
-      const currentSitemaps = await this.getSitemaps();
+      const serialized = serializeSitemap(updatedSitemap);
+      await saveCloudSitemapDirect(serialized);
       
-      const existingIndex = currentSitemaps.findIndex(s => s.id === sitemap.id);
-      let updatedSitemaps: Sitemap[];
-      
-      if (existingIndex >= 0) {
-        updatedSitemaps = [...currentSitemaps];
-        updatedSitemaps[existingIndex] = updatedSitemap;
-      } else {
-        updatedSitemaps = [...currentSitemaps, updatedSitemap];
+      // Update cache
+      if (cachedSitemaps) {
+        const idx = cachedSitemaps.findIndex(s => s.id === sitemap.id);
+        if (idx >= 0) {
+          cachedSitemaps[idx] = updatedSitemap;
+        } else {
+          cachedSitemaps.push(updatedSitemap);
+        }
+        cacheTimestamp = Date.now();
       }
-
-      const serializedSitemaps = updatedSitemaps.map(serializeSitemap);
-      await saveCloudSitemaps(serializedSitemaps);
-      
-      updateCache(updatedSitemaps);
     } catch (error) {
       console.error("Failed to save sitemap:", error);
       throw new Error("Could not save sitemap - cloud storage required");
@@ -887,24 +885,11 @@ export const storage = {
   // Archive sitemap
   async archiveSitemap(id: string): Promise<void> {
     try {
-      const currentSitemaps = await this.getSitemaps();
-      const sitemapIndex = currentSitemaps.findIndex(sitemap => sitemap.id === id);
+      const sitemap = await this.getSitemap(id);
+      if (!sitemap) throw new Error("Sitemap not found");
       
-      if (sitemapIndex === -1) {
-        throw new Error("Sitemap not found");
-      }
-      
-      const updatedSitemaps = [...currentSitemaps];
-      updatedSitemaps[sitemapIndex] = {
-        ...updatedSitemaps[sitemapIndex],
-        isArchived: true,
-        updatedAt: new Date()
-      };
-      
-      const serializedSitemaps = updatedSitemaps.map(serializeSitemap);
-      await saveCloudSitemaps(serializedSitemaps);
-      
-      updateCache(updatedSitemaps);
+      const updated = { ...sitemap, isArchived: true, updatedAt: new Date() };
+      await this.saveSitemap(updated);
     } catch (error) {
       console.error("Failed to archive sitemap:", error);
       throw new Error("Could not archive sitemap - cloud storage required");
@@ -914,40 +899,27 @@ export const storage = {
   // Restore sitemap from archive
   async restoreSitemap(id: string): Promise<void> {
     try {
-      const currentSitemaps = await this.getSitemaps();
-      const sitemapIndex = currentSitemaps.findIndex(sitemap => sitemap.id === id);
+      const sitemap = await this.getSitemap(id);
+      if (!sitemap) throw new Error("Sitemap not found");
       
-      if (sitemapIndex === -1) {
-        throw new Error("Sitemap not found");
-      }
-      
-      const updatedSitemaps = [...currentSitemaps];
-      updatedSitemaps[sitemapIndex] = {
-        ...updatedSitemaps[sitemapIndex],
-        isArchived: false,
-        updatedAt: new Date()
-      };
-      
-      const serializedSitemaps = updatedSitemaps.map(serializeSitemap);
-      await saveCloudSitemaps(serializedSitemaps);
-      
-      updateCache(updatedSitemaps);
+      const updated = { ...sitemap, isArchived: false, updatedAt: new Date() };
+      await this.saveSitemap(updated);
     } catch (error) {
       console.error("Failed to restore sitemap:", error);
       throw new Error("Could not restore sitemap - cloud storage required");
     }
   },
 
-  // Delete sitemap permanently from cloud storage
+  // Delete sitemap permanently
   async deleteSitemap(id: string): Promise<void> {
     try {
-      const currentSitemaps = await this.getSitemaps();
-      const filteredSitemaps = currentSitemaps.filter(sitemap => sitemap.id !== id);
+      await deleteCloudSitemap(id);
       
-      const serializedSitemaps = filteredSitemaps.map(serializeSitemap);
-      await saveCloudSitemaps(serializedSitemaps);
-      
-      updateCache(filteredSitemaps);
+      // Update cache
+      if (cachedSitemaps) {
+        cachedSitemaps = cachedSitemaps.filter(s => s.id !== id);
+        cacheTimestamp = Date.now();
+      }
     } catch (error) {
       console.error("Failed to delete sitemap:", error);
       throw new Error("Could not delete sitemap - cloud storage required");

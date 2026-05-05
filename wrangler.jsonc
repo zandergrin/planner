@@ -1,0 +1,12 @@
+{
+  "name": "venn-site-planner",
+  "compatibility_date": "2025-01-01",
+  "pages_build_output_dir": "dist",
+  "d1_databases": [
+    {
+      "binding": "DB",
+"database_name": "planner_venn",
+      "database_id": "e4aff6c5-a83e-48ad-8267-a7e2b190e4e8"
+    }
+  ]
+}
