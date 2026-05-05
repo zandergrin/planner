@@ -584,7 +584,7 @@ let cachedSitemaps: Sitemap[] | null = null;
 let cachedPageTypes: PageType[] | null = null;
 let cacheTimestamp: number = 0;
 let pageTypesTimestamp: number = 0;
-const CACHE_DURATION = 30000; // 30 seconds
+const CACHE_DURATION = 300000; // 5 minutes — reduces JSONBin API calls
 
 // Share URL creation lock to prevent concurrent requests
 let shareUrlCreationLocks: { [sitemapId: string]: Promise<string> } = {};
